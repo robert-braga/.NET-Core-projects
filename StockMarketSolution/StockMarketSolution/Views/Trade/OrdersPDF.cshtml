@@ -1,0 +1,37 @@
+﻿@model IEnumerable<IOrderResponse>
+
+@{
+    Layout = null;
+}
+
+<link href="@("http://" + Context.Request.Host.ToString() + "/Stylesheet.css")" rel="stylesheet" />
+@* <link href="~/Stylesheet.css" rel="stylesheet" /> *@
+
+<h1>Orders</h1>
+
+<table class="table w-100 mt">
+    <thead>
+        <tr>
+            <th>Date and Time</th>
+            <th>Stock</th>
+            <th>Order type</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Trade Amount</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td style="width:15%">@order.DateAndTimeOfOrder.ToString("dd MMMM yyyy HH:mm:ss tt")</td>
+                <td style="width:15%">@order.StockName</td>
+                <td style="width:10%">@order.OrderType.ToString()</td>
+                <td style="width:9%">@order.Quantity</td>
+                <td style="width:9%">@order.Price</td>
+                <td style="width:10%">@order.TradeAmount</td>
+            </tr>
+        }
+    </tbody>
+</table>
