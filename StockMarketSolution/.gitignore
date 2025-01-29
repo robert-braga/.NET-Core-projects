@@ -1,0 +1,23 @@
+﻿# Build
+bin/
+obj/
+
+# Dependencies
+packages/
+node_modules/
+*.nupkg
+
+# User-specific files
+*.suo
+*.user
+*.cache
+.vscode/
+*.vs/
+
+# Logs
+*.log
+
+# Configuration
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
