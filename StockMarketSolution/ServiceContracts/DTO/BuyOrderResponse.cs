@@ -33,7 +33,7 @@ namespace ServiceContracts.DTO
         /// <summary>
         /// Quantity of the stock
         /// </summary>
-        public uint Quantity { get; set; }
+        public int Quantity { get; set; }
 
         /// <summary>
         /// Price of the stock
