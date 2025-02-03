@@ -1,10 +1,11 @@
 ﻿namespace StockMarketSolution.Models
 {
-    public class StockTrade
+    /// <summary>
+    /// View model, used to send model object from controller to Stocks/Explore view
+    /// </summary>
+    public class Stock
     {
         public string? StockSymbol { get; set; }
         public string? StockName { get; set; }
-        public double Price { get; set; } = 0;
-        public int Quantity { get; set; } = 0;
     }
 }

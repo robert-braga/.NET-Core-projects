@@ -31,7 +31,7 @@ namespace ServiceContracts.DTO
         /// Quantity of the stock
         /// </summary>
         [Range(1, 100000, ErrorMessage = "You can buy maximum 100000 shares in  a single order. Minimum is 1")]
-        public uint Quantity { get; set; }
+        public int Quantity { get; set; }
 
         /// <summary>
         /// Price of the stock
