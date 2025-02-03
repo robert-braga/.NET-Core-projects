@@ -13,9 +13,9 @@ namespace Services
 {
     public class StocksService : IStocksService
     {
-        private readonly StockMarketDbContext _stockMarketDbContext;
+        private readonly ApplicationDbContext _stockMarketDbContext;
 
-        public StocksService(StockMarketDbContext stockMarketDbContext)
+        public StocksService(ApplicationDbContext stockMarketDbContext)
         {
             _stockMarketDbContext = stockMarketDbContext;
         }
