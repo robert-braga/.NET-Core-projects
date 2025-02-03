@@ -2,14 +2,14 @@
 
 namespace Entities
 {
-    public class StockMarketDbContext : DbContext
+    public class ApplicationDbContext : DbContext
     {
-        public StockMarketDbContext(DbContextOptions options) : base(options)
+        public ApplicationDbContext(DbContextOptions options) : base(options)
         {
         }
 
-        public DbSet<BuyOrder> BuyOrders { get; set; }
-        public DbSet<SellOrder> SellOrders { get; set; }
+        public virtual DbSet<BuyOrder> BuyOrders { get; set; }
+        public virtual DbSet<SellOrder> SellOrders { get; set; }
 
         override protected void OnModelCreating(ModelBuilder modelBuilder)
         {

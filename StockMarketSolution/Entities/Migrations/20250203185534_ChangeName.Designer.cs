@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Entities.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250127104759_InitDatabase")]
-    partial class InitDatabase
+    [Migration("20250203185534_ChangeName")]
+    partial class ChangeName
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,8 +37,8 @@ namespace Entities.Migrations
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
-                    b.Property<long>("Quantity")
-                        .HasColumnType("bigint");
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
 
                     b.Property<string>("StockName")
                         .IsRequired()
@@ -67,8 +67,8 @@ namespace Entities.Migrations
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
-                    b.Property<long>("Quantity")
-                        .HasColumnType("bigint");
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
 
                     b.Property<string>("StockName")
                         .IsRequired()

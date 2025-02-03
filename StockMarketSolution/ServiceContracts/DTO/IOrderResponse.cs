@@ -12,7 +12,7 @@ namespace ServiceContracts.DTO
         string StockName { get; set; }
         DateTime DateAndTimeOfOrder { get; set; }
         EOrderType OrderType { get; }
-        uint Quantity { get; set; }
+        int Quantity { get; set; }
         double Price { get; set; }
         double TradeAmount { get; set; }
     }

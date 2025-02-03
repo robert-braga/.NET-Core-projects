@@ -13,7 +13,7 @@ builder.Services.AddSingleton<IFinnhubService, FinhubService>();
 builder.Services.AddScoped<IStocksService, StocksService>();
 builder.Services.AddHttpClient();
 
-builder.Services.AddDbContext<StockMarketDbContext>(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("StockMarketDb"));
 });
