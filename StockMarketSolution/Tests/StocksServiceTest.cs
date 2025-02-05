@@ -3,6 +3,8 @@ using Entities;
 using EntityFrameworkCoreMock;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Moq;
+using RepositoryContracts;
 using ServiceContracts;
 using ServiceContracts.DTO;
 using Services;
@@ -17,25 +19,30 @@ namespace Tests
         private readonly ITestOutputHelper _outputHelper;
         private readonly IFixture _fixture;
 
+        private readonly Mock<IStocksRepository> _stocksRepositoryMock;
+        private readonly IStocksRepository _stocksRepository;
+
         public StocksServiceTest(ITestOutputHelper testOutputHelper)
         {
             _outputHelper = testOutputHelper;
             _fixture = new Fixture();
 
-            DbContextMock<ApplicationDbContext> dbContextMock = new DbContextMock<ApplicationDbContext>(
-                new DbContextOptionsBuilder<ApplicationDbContext>().Options
-            );
+            _stocksRepositoryMock = new Mock<IStocksRepository>();
+            _stocksRepository = _stocksRepositoryMock.Object;
 
-            ApplicationDbContext applicationDbContext = dbContextMock.Object;
+            //DbContextMock<ApplicationDbContext> dbContextMock = new DbContextMock<ApplicationDbContext>(
+            //    new DbContextOptionsBuilder<ApplicationDbContext>().Options
+            //);
 
+            //ApplicationDbContext applicationDbContext = dbContextMock.Object;
 
-            var buyOrdersInitialData = new List<BuyOrder>();
-            var sellOrdersInitialData = new List<SellOrder>();
+            //var buyOrdersInitialData = new List<BuyOrder>();
+            //var sellOrdersInitialData = new List<SellOrder>();
 
-            dbContextMock.CreateDbSetMock(t => t.BuyOrders, buyOrdersInitialData);
-            dbContextMock.CreateDbSetMock(t => t.SellOrders, sellOrdersInitialData);
+            //dbContextMock.CreateDbSetMock(t => t.BuyOrders, buyOrdersInitialData);
+            //dbContextMock.CreateDbSetMock(t => t.SellOrders, sellOrdersInitialData);
 
-            _stocksService = new StocksService(applicationDbContext);
+            _stocksService = new StocksService(_stocksRepository);
         }
 
 
@@ -189,7 +196,7 @@ namespace Tests
 
         //If you supply all valid values, it should be successful and return an object of BuyOrderResponse type with auto-generated BuyOrderID (guid).
         [Fact]
-        public async Task CreateBuyOrder_ValidRequest()
+        public async Task CreateBuyOrder_ValidRequest_ToBeBuySuccessful()
         {
             // Arrange
             BuyOrderRequest buyOrderRequest = new BuyOrderRequest()
@@ -201,11 +208,20 @@ namespace Tests
                 Price = 12
             };
 
+            BuyOrder buyOrder = buyOrderRequest.ToBuyOrder();
+            BuyOrderResponse buyOrderResponseExpected = buyOrder.ToBuyOrderResponse();
+
             //Act 
+            _stocksRepositoryMock
+                .Setup(t => t.CreateBuyOrder(It.IsAny<BuyOrder>()))
+                .ReturnsAsync(buyOrder);
+
             BuyOrderResponse responseFromCreate = await _stocksService.CreateBuyOrder(buyOrderRequest);
+            buyOrderResponseExpected.BuyOrderID = responseFromCreate.BuyOrderID;
 
             //Assert
             responseFromCreate.BuyOrderID.Should().NotBe(Guid.Empty);
+            responseFromCreate.Should().Be(buyOrderResponseExpected);
 
             _outputHelper.WriteLine($"Buy order response object: {responseFromCreate.ToString()}");
         }
@@ -372,7 +388,7 @@ namespace Tests
 
         // If you supply all valid values, it should be successful and return an object of SellOrderResponse type with auto-generated SellOrderID (guid).
         [Fact]
-        public async void CreateSellOrder_ValidRequest()
+        public async void CreateSellOrder_ValidRequest_ToBeSuccessful()
         {
             // Arrange
             SellOrderRequest sellOrderRequest = new SellOrderRequest()
@@ -385,10 +401,19 @@ namespace Tests
             };
 
             //Act 
+            SellOrder sellOrder = sellOrderRequest.ToSellOrder();
+            SellOrderResponse sellOrderResponseExpected = sellOrder.ToSellOrderResponse();
+
+            _stocksRepositoryMock
+                .Setup(t => t.CreateSellOrder(It.IsAny<SellOrder>()))
+                .ReturnsAsync(sellOrder);
+
             SellOrderResponse responseFromCreate = await _stocksService.CreateSellOrder(sellOrderRequest);
+            sellOrderResponseExpected.SellOrderID = responseFromCreate.SellOrderID;
 
             //Assert
             responseFromCreate.SellOrderID.Should().NotBe(Guid.Empty);
+            responseFromCreate.Should().Be(sellOrderResponseExpected);
 
             _outputHelper.WriteLine($"Sell order response object: {responseFromCreate.ToString()}");
         }
@@ -398,11 +423,15 @@ namespace Tests
         #region GetAllBuyOrders
         //1. When you invoke this method, by default, the returned list should be empty.
         [Fact]
-        public async void GetAllBuyOrders_EmptyList()
+        public async void GetAllBuyOrders_EmptyList_ToBeEmptyList()
         {
-            List<BuyOrderResponse> buyOrdersFromGet = await _stocksService.GetBuyOrders();
+            List<BuyOrder> buyOrders = new List<BuyOrder>();
 
-            Assert.Empty(buyOrdersFromGet);
+            _stocksRepositoryMock
+                .Setup(t => t.GetAllBuyOrders())
+                .ReturnsAsync(buyOrders);
+
+            List<BuyOrderResponse> buyOrdersFromGet = await _stocksService.GetBuyOrders();
 
             buyOrdersFromGet.Should().BeEmpty();
         }
@@ -410,37 +439,32 @@ namespace Tests
         //2. When you first add few buy orders using CreateBuyOrder() method; and then invoke GetAllBuyOrders() method; the returned list should contain all the same buy orders.
 
         [Fact]
-        public async void GetAllBuyOrders_AddFewOrders()
+        public async void GetAllBuyOrders_AddFewOrders_ToBeSuccessful()
         {
             //Arrange 
-            List<BuyOrderResponse> buyOrders = new List<BuyOrderResponse>();
-
-            List<BuyOrderRequest> buyOrderRequests = new List<BuyOrderRequest>()
+            List<BuyOrder> buyOrders = new List<BuyOrder>()
             {
-                new BuyOrderRequest()
-                {
-                    StockSymbol = "AAPL",
-                    StockName = "Apple Inc.",
-                    DateAndTimeOfOrder = DateTime.Now,
-                    Quantity = 2,
-                    Price = 12
-                },
-                new BuyOrderRequest()
-                {
-                    StockSymbol = "GOOGL",
-                    StockName = "Alphabet Inc.",
-                    DateAndTimeOfOrder = DateTime.Now,
-                    Quantity = 3,
-                    Price = 15
-                }
+                _fixture.Build<BuyOrder>()
+                        .With(t => t.Quantity, 2)
+                        .With(t => t.Price, 12)
+                        .Create(),
+                _fixture.Build<BuyOrder>()
+                        .With(t => t.Quantity, 1)
+                        .With(t => t.Price, 2)
+                        .Create(),
+                _fixture.Build<BuyOrder>()
+                        .With(t => t.Quantity, 5)
+                        .With(t => t.Price, 122)
+                        .Create()
             };
 
-            foreach (var buyOrderRequest in buyOrderRequests)
-            {
-                BuyOrderResponse buyOrderResponse = await _stocksService.CreateBuyOrder(buyOrderRequest);
+            List<BuyOrderResponse> buyOrdersAfterAdd = buyOrders
+                .Select(x => x.ToBuyOrderResponse())
+                .ToList();
 
-                buyOrders.Add(buyOrderResponse);
-            }
+            _stocksRepositoryMock
+                .Setup(t => t.GetAllBuyOrders())
+                .ReturnsAsync(buyOrders);
 
             List<BuyOrderResponse> buyOrdersFromGet = await _stocksService.GetBuyOrders();
 
@@ -451,8 +475,14 @@ namespace Tests
         #region GetAllSellOrders
         //1. When you invoke this method, by default, the returned list should be empty.
         [Fact]
-        public async void GetAllSellOrders_EmptyList()
+        public async void GetAllSellOrders_EmptyList_ToBeEmptyList()
         {
+            List<SellOrder> sellOrders = new List<SellOrder>();
+
+            _stocksRepositoryMock
+                .Setup(t => t.GetAllSellOrders())
+                .ReturnsAsync(sellOrders);
+
             List<SellOrderResponse> sellOrdersFromGet = await _stocksService.GetSellOrders();
 
             sellOrdersFromGet.Should().BeEmpty();
@@ -463,34 +493,29 @@ namespace Tests
         public async void GetAllSellOrders_AddFewOrders()
         {
             //Arrange 
-            List<SellOrderResponse> sellOrders = new List<SellOrderResponse>();
-
-            List<SellOrderRequest> sellOrderRequests = new List<SellOrderRequest>()
+            List<SellOrder> sellOrders = new List<SellOrder>()
             {
-                new SellOrderRequest()
-                {
-                    StockSymbol = "AAPL",
-                    StockName = "Apple Inc.",
-                    DateAndTimeOfOrder = DateTime.Now,
-                    Quantity = 2,
-                    Price = 12
-                },
-                new SellOrderRequest()
-                {
-                    StockSymbol = "GOOGL",
-                    StockName = "Alphabet Inc.",
-                    DateAndTimeOfOrder = DateTime.Now,
-                    Quantity = 3,
-                    Price = 15
-                }
+                _fixture.Build<SellOrder>()
+                        .With(t => t.Quantity, 2)
+                        .With(t => t.Price, 12)
+                        .Create(),
+                _fixture.Build<SellOrder>()
+                        .With(t => t.Quantity, 1)
+                        .With(t => t.Price, 2)
+                        .Create(),
+                _fixture.Build<SellOrder>()
+                        .With(t => t.Quantity, 5)
+                        .With(t => t.Price, 122)
+                        .Create()
             };
 
-            foreach (var sellRequest in sellOrderRequests)
-            {
-                SellOrderResponse sellOrderResponse = await _stocksService.CreateSellOrder(sellRequest);
+            List<SellOrderResponse> sellOrdersAfterAdd = sellOrders
+                .Select(x => x.ToSellOrderResponse())
+                .ToList();
 
-                sellOrders.Add(sellOrderResponse);
-            }
+            _stocksRepositoryMock
+                .Setup(t => t.GetAllSellOrders())
+                .ReturnsAsync(sellOrders);
 
             List<SellOrderResponse> sellOrdersFromGet = await _stocksService.GetSellOrders();
 
