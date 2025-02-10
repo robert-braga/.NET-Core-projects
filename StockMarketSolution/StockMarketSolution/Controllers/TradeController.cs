@@ -24,27 +24,31 @@ namespace StockMarketSolution.Controllers
             _stocksService = stocksService;
         }
 
-        [Route("[action]")]
-        [Route("/")]
+        [Route("[action]/{stockSymbol?}")]
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? stockSymbol)
         {
             if (string.IsNullOrWhiteSpace(_tradingOptions.DefaultStockSymbol))
                 _tradingOptions.DefaultStockSymbol = "MSFT";
 
+            if (_tradingOptions.DefaultOrderQuantity == null)
+                _tradingOptions.DefaultOrderQuantity = 100;
+
             StockTrade stockTrade = new StockTrade()
             {
-                StockSymbol = _tradingOptions.DefaultStockSymbol
+                StockSymbol = stockSymbol ?? _tradingOptions.DefaultStockSymbol
             };
 
-            var companyProfileResponse = await _finnhubService.GetCompanyProfile(_tradingOptions.DefaultStockSymbol);
+            var companyProfileResponse = await _finnhubService.GetCompanyProfile(stockTrade.StockSymbol);
 
-            var quoteResponse = await _finnhubService.GetStockPriceQuote(_tradingOptions.DefaultStockSymbol);
+            var quoteResponse = await _finnhubService.GetStockPriceQuote(stockTrade.StockSymbol);
 
-            if( companyProfileResponse != null && quoteResponse != null)
+            if (companyProfileResponse != null && quoteResponse != null)
             {
                 stockTrade.StockName = Convert.ToString(companyProfileResponse["name"]);
                 stockTrade.Price = Convert.ToDouble(quoteResponse["c"]);
+                stockTrade.Quantity = _tradingOptions.DefaultOrderQuantity.Value;
+
             }
 
             ViewBag.finhubToken = _configuration["finhubToken"];

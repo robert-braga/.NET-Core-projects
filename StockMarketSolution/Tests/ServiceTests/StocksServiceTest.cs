@@ -11,7 +11,7 @@ using Services;
 using System;
 using Xunit.Abstractions;
 
-namespace Tests
+namespace Tests.ServiceTests
 {
     public class StocksServiceTest
     {
@@ -56,10 +56,10 @@ namespace Tests
             BuyOrderRequest? buyOrderRequest = null;
 
             //Act
-            Func<Task> action = (async () =>
+            Func<Task> action = async () =>
             {
                 await _stocksService.CreateBuyOrder(buyOrderRequest);
-            });
+            };
 
             //Assert
             await action.Should().ThrowAsync<ArgumentNullException>();
@@ -73,14 +73,14 @@ namespace Tests
             // Arrange
             BuyOrderRequest buyOrderRequest = _fixture
                 .Build<BuyOrderRequest>()
-                .With(x=> x.Quantity, quantity)
+                .With(x => x.Quantity, quantity)
                 .Create();
 
             //Act
-            Func<Task> action = (async () =>
+            Func<Task> action = async () =>
             {
                 await _stocksService.CreateBuyOrder(buyOrderRequest);
-            });
+            };
 
             //Assert
             await action.Should().ThrowAsync<ArgumentException>();
@@ -97,10 +97,10 @@ namespace Tests
                 .Create();
 
             //Act
-            Func<Task> action = (async () =>
+            Func<Task> action = async () =>
             {
                 await _stocksService.CreateBuyOrder(buyOrderRequest);
-            });
+            };
 
             //Assert
             await action.Should().ThrowAsync<ArgumentException>();
@@ -117,10 +117,10 @@ namespace Tests
                .Create();
 
             //Act
-            Func<Task> action = (async () =>
+            Func<Task> action = async () =>
             {
                 await _stocksService.CreateBuyOrder(buyOrderRequest);
-            });
+            };
 
             //Assert
             await action.Should().ThrowAsync<ArgumentException>();
@@ -137,10 +137,10 @@ namespace Tests
                 .Create();
 
             //Act
-            Func<Task> action = (async () =>
+            Func<Task> action = async () =>
             {
                 await _stocksService.CreateBuyOrder(buyOrderRequest);
-            });
+            };
 
             //Assert
             await action.Should().ThrowAsync<ArgumentException>();
@@ -157,10 +157,10 @@ namespace Tests
                .Create();
 
             //Act
-            Func<Task> action = (async () =>
+            Func<Task> action = async () =>
             {
                 await _stocksService.CreateBuyOrder(buyOrderRequest);
-            });
+            };
 
             //Assert
             var exception = await action.Should().ThrowAsync<ArgumentException>();
@@ -183,10 +183,10 @@ namespace Tests
             };
 
             //Act
-            Func<Task> action = (async () =>
+            Func<Task> action = async () =>
             {
                 await _stocksService.CreateBuyOrder(buyOrderRequest);
-            });
+            };
 
             //Assert
             var exception = await action.Should().ThrowAsync<ArgumentException>();
@@ -236,10 +236,10 @@ namespace Tests
             SellOrderRequest? sellOrderRequest = null;
 
             //Assert
-            Func<Task> action = (async () =>
+            Func<Task> action = async () =>
             {
                 await _stocksService.CreateSellOrder(sellOrderRequest);
-            });
+            };
 
             await action.Should().ThrowAsync<ArgumentNullException>();
         }
@@ -259,10 +259,10 @@ namespace Tests
             };
 
             //Assert
-            Func<Task> action = (async () =>
+            Func<Task> action = async () =>
             {
                 await _stocksService.CreateSellOrder(sellOrderRequest);
-            });
+            };
 
             await action.Should().ThrowAsync<ArgumentException>();
         }
@@ -282,10 +282,10 @@ namespace Tests
             };
 
             //Assert
-            Func<Task> action = (async () =>
+            Func<Task> action = async () =>
             {
                 await _stocksService.CreateSellOrder(sellOrderRequest);
-            });
+            };
 
             await action.Should().ThrowAsync<ArgumentException>();
         }
@@ -305,10 +305,10 @@ namespace Tests
             };
 
             //Assert
-            Func<Task> action = (async () =>
+            Func<Task> action = async () =>
             {
                 await _stocksService.CreateSellOrder(sellOrderRequest);
-            });
+            };
 
             await action.Should().ThrowAsync<ArgumentException>();
         }
@@ -328,10 +328,10 @@ namespace Tests
             };
 
             //Assert
-            Func<Task> action = (async () =>
+            Func<Task> action = async () =>
             {
                 await _stocksService.CreateSellOrder(sellOrderRequest);
-            });
+            };
 
             await action.Should().ThrowAsync<ArgumentException>();
         }
@@ -351,10 +351,10 @@ namespace Tests
             };
 
             //Assert
-            Func<Task> action = (async () =>
+            Func<Task> action = async () =>
             {
                 await _stocksService.CreateSellOrder(sellOrderRequest);
-            });
+            };
 
             var exception = await action.Should().ThrowAsync<ArgumentException>();
 
@@ -376,10 +376,10 @@ namespace Tests
             };
 
             //Assert
-            Func < Task > action = (async () =>
+            Func<Task> action = async () =>
             {
                 await _stocksService.CreateSellOrder(sellOrderRequest);
-            });
+            };
 
             var exception = await action.Should().ThrowAsync<ArgumentException>();
 
