@@ -91,7 +91,7 @@ namespace Repositories
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage()
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri($"https://finnhub.io/api/v1/quote??exchange=US")
+                RequestUri = new Uri($"https://finnhub.io/api/v1/stock/symbol?exchange=US")
             };
 
             var response = await client.SendAsync(httpRequestMessage);
