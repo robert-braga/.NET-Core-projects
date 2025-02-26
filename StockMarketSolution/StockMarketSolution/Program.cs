@@ -5,8 +5,20 @@ using RepositoryContracts;
 using ServiceContracts;
 using Services;
 using StockMarketSolution;
+using Serilog;
+using StockMarketSolution.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((HostBuilderContext context, IServiceProvider services, LoggerConfiguration loggerConfiguration)
+    =>
+{
+    loggerConfiguration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services);
+});
+
+
 builder.Services.AddControllersWithViews();
 
 // To activate Options pattern for a section of configuration
@@ -33,6 +45,18 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
+
+if (builder.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/Error");
+    app.UseExceptionHandlingMiddleware();
+}
 
 if (!builder.Environment.IsEnvironment("Test"))
 {

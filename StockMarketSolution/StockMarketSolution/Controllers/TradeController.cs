@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Rotativa.AspNetCore;
 using ServiceContracts;
 using ServiceContracts.DTO;
+using StockMarketSolution.Filters.ActionFilters;
 using StockMarketSolution.Models;
 
 namespace StockMarketSolution.Controllers
@@ -15,13 +16,15 @@ namespace StockMarketSolution.Controllers
         private readonly IConfiguration _configuration;
         private readonly IFinnhubService _finnhubService;
         private readonly IStocksService _stocksService;
+        private readonly ILogger<TradeController> _logger;  
 
-        public TradeController(IOptions<TradingOptions> tradingOptions, IConfiguration configuration, IFinnhubService finhubService, IStocksService stocksService)
+        public TradeController(IOptions<TradingOptions> tradingOptions, IConfiguration configuration, IFinnhubService finhubService, IStocksService stocksService, ILogger<TradeController> logger)
         {
             this._tradingOptions = tradingOptions.Value;
             _configuration = configuration;
             _finnhubService = finhubService;
             _stocksService = stocksService;
+            _logger = logger;
         }
 
         [Route("[action]/{stockSymbol?}")]
@@ -60,6 +63,8 @@ namespace StockMarketSolution.Controllers
         [HttpGet]
         public async Task<IActionResult> Orders()
         {
+            _logger.LogInformation("Getting orders");
+
             List<BuyOrderResponse> buyOrders = await _stocksService.GetBuyOrders();
 
             List<SellOrderResponse> sellOrders = await _stocksService.GetSellOrders();
@@ -75,30 +80,16 @@ namespace StockMarketSolution.Controllers
 
         [Route("[action]")]
         [HttpPost]
-        public async Task<IActionResult> BuyOrder(BuyOrder buyOrder)
+        [TypeFilter(typeof(RedirectActionFilter))]
+        public async Task<IActionResult> BuyOrder(BuyOrder order)
         {
-            if(!ModelState.IsValid)
-            {
-                StockTrade stockTrade = new StockTrade()
-                {
-                    StockSymbol = buyOrder.StockSymbol,
-                    StockName = buyOrder.StockName,
-                    Price = buyOrder.Price,
-                    Quantity = buyOrder.Quantity
-                };
-
-                ViewBag.Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-
-                return View("Index", stockTrade);
-            }
-
             BuyOrderRequest buyOrderRequest = new BuyOrderRequest()
             {
-                StockName = buyOrder.StockName,
-                StockSymbol = buyOrder.StockSymbol,
+                StockName = order.StockName,
+                StockSymbol = order.StockSymbol,
                 DateAndTimeOfOrder = DateTime.Now,
-                Price = buyOrder.Price,
-                Quantity = buyOrder.Quantity
+                Price = order.Price,
+                Quantity = order.Quantity
             };
 
             BuyOrderResponse buyOrderResponse = await _stocksService.CreateBuyOrder(buyOrderRequest);
@@ -107,30 +98,15 @@ namespace StockMarketSolution.Controllers
 
         [Route("[action]")]
         [HttpPost]
-        public async Task<IActionResult> SellOrder(SellOrder sellOrder)
+        public async Task<IActionResult> SellOrder(SellOrder order)
         {
-            if (!ModelState.IsValid)
-            {
-                StockTrade stockTrade = new StockTrade()
-                {
-                    StockSymbol = sellOrder.StockSymbol,
-                    StockName = sellOrder.StockName,
-                    Price = sellOrder.Price,
-                    Quantity = sellOrder.Quantity
-                };
-
-                ViewBag.Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-
-                return View("Index", stockTrade);
-            }
-
             SellOrderRequest sellOrderRequest = new SellOrderRequest()
             {
-                StockName = sellOrder.StockName,
-                StockSymbol = sellOrder.StockSymbol,
+                StockName = order.StockName,
+                StockSymbol = order.StockSymbol,
                 DateAndTimeOfOrder = DateTime.Now,
-                Price = sellOrder.Price,
-                Quantity = sellOrder.Quantity
+                Price = order.Price,
+                Quantity = order.Quantity
             };
 
             SellOrderResponse sellOrderResponse = await _stocksService.CreateSellOrder(sellOrderRequest);
