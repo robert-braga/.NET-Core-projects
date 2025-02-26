@@ -1,5 +1,6 @@
 ﻿using Entities;
 using Microsoft.EntityFrameworkCore;
+using RepositoryContracts;
 using ServiceContracts;
 using ServiceContracts.DTO;
 using Services.Helpers;
@@ -13,11 +14,11 @@ namespace Services
 {
     public class StocksService : IStocksService
     {
-        private readonly ApplicationDbContext _stockMarketDbContext;
+        private readonly IStocksRepository _stocksRepository;
 
-        public StocksService(ApplicationDbContext stockMarketDbContext)
+        public StocksService(IStocksRepository stocksRepository)
         {
-            _stockMarketDbContext = stockMarketDbContext;
+            _stocksRepository = stocksRepository;
         }
 
         public async Task<BuyOrderResponse> CreateBuyOrder(BuyOrderRequest? buyOrderRequest)
@@ -37,8 +38,7 @@ namespace Services
             buyOrder.BuyOrderID = Guid.NewGuid();
 
             // adds the buy order to the database
-            _stockMarketDbContext.BuyOrders.Add(buyOrder);
-            await _stockMarketDbContext.SaveChangesAsync();
+            await _stocksRepository.CreateBuyOrder(buyOrder);
 
             return buyOrder.ToBuyOrderResponse();
         }
@@ -53,24 +53,27 @@ namespace Services
             SellOrder sellOrder = sellOrderRequest.ToSellOrder();
             sellOrder.SellOrderID = Guid.NewGuid();
 
-            _stockMarketDbContext.SellOrders.Add(sellOrder);
-            await _stockMarketDbContext.SaveChangesAsync();
+            await _stocksRepository.CreateSellOrder(sellOrder);
 
             return sellOrder.ToSellOrderResponse();
         }
 
         public async Task<List<BuyOrderResponse>> GetBuyOrders()
         {
-            var orders = await _stockMarketDbContext.BuyOrders.OrderByDescending(x => x.DateAndTimeOfOrder).ToListAsync();
+            var orders = await _stocksRepository.GetAllBuyOrders();
 
-            return orders.Select(x => x.ToBuyOrderResponse()).ToList();
+            return orders
+                .Select(x => x.ToBuyOrderResponse())
+                .ToList();
         }
 
         public async Task<List<SellOrderResponse>> GetSellOrders()
         {
-            var orders = await _stockMarketDbContext.SellOrders.OrderByDescending(x => x.DateAndTimeOfOrder).ToListAsync();
+            var orders = await _stocksRepository.GetAllSellOrders();
 
-            return orders.Select(x => x.ToSellOrderResponse()).ToList();
+            return orders
+                .Select(x => x.ToSellOrderResponse())
+                .ToList();
         }
     }
 }
