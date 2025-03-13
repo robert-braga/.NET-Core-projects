@@ -1,0 +1,6 @@
+@OrdersManager.WebAPI_HostAddress = http://localhost:5178
+
+GET {{OrdersManager.WebAPI_HostAddress}}
+Accept: application/json
+
+###

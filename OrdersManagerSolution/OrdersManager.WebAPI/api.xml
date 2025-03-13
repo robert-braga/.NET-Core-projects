@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>OrdersManager.WebAPI</name>
+    </assembly>
+    <members>
+        <member name="T:OrdersManager.WebAPI.Controllers.v1.OrdersController">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:OrdersManager.WebAPI.Controllers.v1.OrdersController.GetOrder(System.Guid)">
+            <summary>
+            To get an order by its id
+            </summary>
+            <param name="id">Order ID to search</param>
+            <returns>The  order found</returns>
+        </member>
+        <member name="T:OrdersManager.WebAPI.Controllers.v2.OrdersController">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:OrdersManager.WebAPI.Controllers.v2.OrdersController.GetOrders">
+            <summary>
+            Example: returns just the order numbers in v2. Whole orders are returned in v1
+            </summary>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

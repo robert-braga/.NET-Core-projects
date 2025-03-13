@@ -3,3 +3,10 @@
 ################################################################################
 
 /.vs
+bin/
+obj/
+
+# Any other common patterns you want to ignore
+.vs/
+.vscode/
+*.user
